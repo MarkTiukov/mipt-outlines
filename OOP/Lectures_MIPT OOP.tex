@@ -1,0 +1,971 @@
+\documentclass[12pt]{article}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage{amsmath, amssymb, amsfonts, amsthm}
+\usepackage{hyperref}
+\setlength{\parindent}{0pt}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[left=1.5cm,right=1cm,top=1.5cm,bottom=1.5cm]{geometry}
+
+
+\title{Конспекты по C++. \\\large Семестр 2}
+\author{Марк Тюков, Иван Кудрявцев}
+\date{Весна 2020 года}
+
+\pagestyle{headings}
+
+\lstset{ 
+  backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}; should come as last argument
+  basicstyle=\footnotesize,        % the size of the fonts that are used for the code
+  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+  breaklines=true,                 % sets automatic line breaking
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{black},      % comment style
+  deletekeywords={...},            % if you want to delete keywords from the given language
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  extendedchars=\true,             % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+  frame=single,	                   % adds a frame around the code
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  keywordstyle=\color{blue},       % keyword style
+  language=C++,                    % the language of the code
+  morekeywords={*,...},            % if you want to add more keywords to the set
+  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+  numbersep=8pt,                   % how far the line-numbers are from the code
+  numberstyle=\color{gray},        % the style that is used for the line-numbers
+  rulecolor=\color{gray},          % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stepnumber=1,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  stringstyle=\color{violet},      % string literal style
+  tabsize=2,	                   % sets default tabsize to 2 spaces
+  texcl=true,
+  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+\newcommand{\ps}{\textbf{P.S.: }}
+
+\newcommand{\cppEleven}{\textbf{C++11}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+%%
+\maketitle
+\tableofcontents
+\newpage
+%%
+
+\section{Введение в язык}
+\subsection{Инструкции}
+
+\subsubsection{Declarations (объявления)}
+
+\textbf{Переменные}
+\begin{lstlisting}[language=C++]
+type id [= value];
+\end{lstlisting}
+
+\textbf{Примеры}
+
+[unsigned] int/long long/char/float/double/long double/bool
+
+\ps size\_t $\equiv$ unsigned long long
+
+\
+
+\textbf{Функции, структуры}
+
+\begin{lstlisting}
+void f(int x, double y){}
+struct S{};
+\end{lstlisting}
+
+\ps using vi = std::vector<int>;
+
+\paragraph{Declaration vs definition}
+
+!!! One definition rule (ODR)
+
+\subsubsection{Expressions}
+
+\textbf{Базовые операторы} 
+
+\begin{enumerate}
+	\item Арифметические операторы (+, -, $\ast$, /, $\%$) 
+	\item Побитовые операторы ($\&$, |, $\wedge$, $\sim$, $\ll$, $\gg$)
+	\item Логические операторы ($\&\&$, ||, !)
+	\item Операторы сравнения (==, <, >, <=, >=)
+%% ВСТАВИТЬ ПРО Lvalue И Rvalue
+	\item Assignments ($=$, $+=$, $-=$, $\ast=$, $/=$, $\%=$, $\&=$, $|=$, $\space\wedge$=, $\ll=$, $\gg=$)
+	\item Инкремент и декремент ($++x$, $x++$)
+	\item sizeof() - возвращает число, которое нужно для хранения входных данных (в байтах). Он не сохраняет результат операций. Например, $sizeof(x++)$ не изменит $x$
+	\item Тернарный оператор "... ? ... : ..."
+	\item Запятая ---- выполняет левую часть, потом правую, возвращает правую. Она гарантирует, что левая часть закончит выполнение до того, как начнет выполняться правая. 
+\end{enumerate} 
+
+\subsubsection{Control statements}
+
+\begin{enumerate}
+	\item if (statement) {} else {}
+	\item while(statement){}
+	\item for (declaration or expression; bool expression; expression){}
+\end{enumerate}
+
+\section{Ошибки}
+
+\subsection[Compilation Error]{Ошибки компиляции (Compilation Error)} 
+
+\subsubsection{Лексические ошибки}
+Неизвестный символ
+
+\subsubsection{Синтаксические ошибки}
+\texttt{if = 5)}
+
+\subsubsection{Семантические ошибки}
+\colorbox{red}{...}
+
+Семантическая ошибка (или ещё «смысловая») возникает, когда код синтаксически правильный, но выполняет не то, что нужно программисту.
+
+\subsection[Runtime Error]{Ошибки выполнения RE - Runtime Error}
+
+\subsubsection[Segmentation Fault]{Segmentation Fault - обращаемся к чужой памяти} 
+\begin{enumerate}
+	\item \colorbox{red}{заканчивается стек рекурсии}
+\end{enumerate}
+
+\subsection{Undefined Behaviour} 
+
+Когда пишем что-то такое, на что компилятор в стандарте не имеет четкой инструкции.
+
+\paragraph{Пример:} обращение к массиву по несуществующему индексу. 
+\begin{lstlisting}
+int a[10];
+a[100]; 
+\end{lstlisting}
+
+В таком случае можно получить как RE, так и UB 
+
+\textbf{Если в программе случился UB, то не гарантируется ничего}! 
+
+\
+
+\colorbox{red}{(1 != 0) будет true}
+
+\subsection[Linking Error]{Linking error - ошибки линковщика}
+
+После компиляции, например, что-то не объявлено.
+
+\
+
+\subsection{Насколько плохи все эти ошибки?} 
+
+CE - компилятор наш друг
+
+RE - \underline{ПЛОХО!} Сервер может упасть/может случиться что-то плохое во ВРЕМЯ ВЫПОЛНЕНИЯ
+
+UB - \underline{УЖАСНО!!!} Не совершайте преступление, не делайте UB!
+
+\textit{UB и RE компилятор не блокирует зачастую при компиляции.}
+
+\section{Указатели. Массивы}
+
+\subsection{Pointers, arrays, functions, etc}
+
+\subsubsection{Pointers}
+
+\begin{lstlisting}
+int x {
+	int y; // выделение памяти
+} // удаление из памяти ( на самом деле потеря адреса, что происходит с данными по тому адресу - неизвестно)
+
+type* p; 
+*p; // унарная звездочка разыменовывания.
+
+type* p = &x; // кладем в p адрес x
+p + 1; p - 1;
+\end{lstlisting}
+
+\subsubsection{Операции с указателями}
+\begin{enumerate}
+\item Разыменование;
+\item Сложение с числами;
+\item Разность указателей. 
+\end{enumerate}
+
+\textbf{void*} - указатель на несуществующую область памяти. Такие указатели нельзя увеличивать и вычитать друг из друга.
+
+\paragraph{Но!} Указатели \underline{можно преобразовывать}. \textit{nullptr} - константный указатель (типа \textit{nullptr\_t}) - аналог нуля для указателей
+
+\
+
+\textbf{P.S.:}
+\begin{lstlisting}
+*nullptr  // UB :)
+\end{lstlisting}
+
+\subsection{Arrays}
+
+type a[10] - выделение памяти на стэке для 10 элементов
+
+\subsubsection{Операции над массивами:} 
+\begin{enumerate}
+	\item *(a+i) --- взятие адреса, где начинается массив, прибавление к нему числа i и разыменование.
+	\item Array-To-Pointer conversion 
+
+	\texttt{type* b = a;}
+	
+	\item \texttt{sizeof(a)} --- размер массива * \texttt{sizeof(тип)}
+
+	\texttt{sizeof(type*)} $\not=$ \texttt{sizeof(a);}
+\end{enumerate}
+
+\subsection{Functions}
+
+\textbf{Сигнатура} - набор типов принимаемых аргументов.
+
+Можно объявить несколько функций с разными сигнатурами
+\begin{lstlisting}
+type f(int);
+type f(double);
+type f(int, int);
+\end{lstlisting}
+
+Эти функции могут возвращать данные разных типов
+
+Компилятор при вызове таких функция совершает разрешение
+ перегрузки \textbf{(overloading resolution)}, то есть принимает решение о выборе версии функции
+
+\subsubsection{Overloading resolution}
+\begin{enumerate}
+	\item В точности такой тип;
+	\item Преобразование в int;
+	\item Если не получается однозначно выбрать, будет ошибка компиляции \textbf{Ambiguous Сall}.
+\end{enumerate}
+
+Пример \text{f(float)} вызываем, когда есть только от double и от int. 
+
+\ps Читать в стандарте!!!
+
+\subsubsection{Указатель на функцию}
+
+\begin{lstlisting}
+int f(double);
+int (*)(double) pf = f;
+
+type f(){
+}
+\end{lstlisting}
+
+\ps Запятая при указании аргументов --- устойчивая конструкция для аргументов, а не \textbf{expression}. 
+
+\texttt{int a = 5;} 
+
+Здесь знак равно --- это не оператор присваивания, а устойчивая конструкция инициализации!
+
+\subsubsection{Аргументы по умолчанию}
+
+Аргументы по умолчанию функций указываются \underline{в конце}. 
+
+\texttt{f(double x, int n = 10)}
+
+\subsubsection{Inline}
+
+Непосредственная вставка кода в указанное место при компиляции. 
+
+\texttt{inline} --- лишь рекомендации компилятору (компилятор решает сам, он умный)
+
+
+\section[Память]{Статическая и динамическая память}
+
+\subsection{Статическая память}
+
+\subsubsection{Static Variables}
+
+\textbf{Свойства}
+\begin{enumerate}
+	\item Один раз заводятся;
+	\item Размер вычисляет компилятор до запуска программы;
+	\item Инициализируются один раз;
+	\item Значение при разных вызовах функции сохраняются. 
+\end{enumerate}
+
+\subsection[Динамическая память]{Динамическая память - выдается по требованию}
+
+\subsubsection{Операторы}
+
+\texttt{new, delete}
+
+\subsubsection{Переменная}
+
+\begin{lstlisting}
+type* p = new type(); // запрашиваем память	
+\end{lstlisting}
+
+Потом нужно \underline{освободить} память
+
+\begin{lstlisting}
+delete p;
+\end{lstlisting}
+
+\subsubsection{Массив}
+
+\begin{lstlisting}
+type* p = new type[n]; // запрашиваем память
+delete[] p;
+\end{lstlisting}
+
+\ps delete и new - expressions
+
+\subsubsection{Некорректное использование delete}
+
+\begin{enumerate}
+	\item delete не на тот указатель - UB
+	\item delete без [] для массивов - UB
+	\item Если не освобождать память возможен \textbf{Memory Leak}
+	\item Если дважды удалить, то будет RE (Segmentation Fault)
+\end{enumerate}
+
+\ps \colorbox{yellow}{\texttt{delete p, pp;}} --- это \textbf{expression}. Парсится по запятой. Выполнится \texttt{delete p}, потом \texttt{pp} (просто обращение). То есть \texttt{pp} не удалится :(
+
+\section{Ссылки}
+
+\subsection{Создание ссылки}
+
+\texttt{type x;}
+
+\texttt{type\& y = x;} // новое название переменной, y - \textbf{ссылка} на x.
+
+\
+
+Не заработает:
+\begin{lstlisting}
+void swap(int x /* создаем локальную КОПИЮ икса */, int y){
+  int t = x;
+  x = y;
+  y = t;
+} 
+\end{lstlisting}
+
+\begin{lstlisting}
+type x;
+type y = x; // Создаем ссылку, но НЕ в С++. В Java - да 
+\end{lstlisting}
+\ps Java $\equiv\heartsuit$
+
+\
+
+\begin{lstlisting}
+type x;
+type& y = x; // новое название переменной. y - ссылка на x. Всё, что делается с y делается и с x 
+\end{lstlisting}
+
+Отныне нет способа отличить y от x. Отныне и навсегда:
+
+\textit{``Я поступил на физтех'' $\equiv$ ``Я поступил в МФТИ''}
+
+Правильная реализация swap:
+
+\begin{lstlisting}
+void swap(int& x, int& y) {
+	int t = x;
+	x = y;
+	y= t;
+}
+\end{lstlisting}
+
+\subsection{Операции над ссылками:} (В основном проблемы :))
+
+\begin{enumerate}
+	\item Можно всё то, что можно делать с x. 
+	\item Нельзя не инициализировать. 
+	\item Нельзя делать ссылки на \texttt{rvalue}:
+\begin{lstlisting}
+int& x = 5;
+\end{lstlisting} 
+\
+
+	\item Можно:
+\begin{lstlisting}
+	int x;
+	int& f() {
+		return x; // x -- глобальный
+	}
+\end{lstlisting}
+	\item Если x в предыдущем примере локальный, то так нельзя, будет битая ссылка (\textbf{Dangling Reference})
+\end{enumerate}
+
+\section{Константы}
+
+\subsection{Объявление}
+
+\texttt{const int x = 3;}
+
+Это такой тип, к которому применены только константные операции
+
+\subsection{Что можно и нельзя}
+
+\begin{enumerate}
+	\item Необходимо инициализировать сразу при объявлении!!!
+	\item Можно передавать не константную версию туда, где нужна константная
+\end{enumerate}
+
+\subsection{Константный указатель}
+
+\texttt{const int* p = new int} // указатель на константный инт: \texttt{*p = 1;} -- нельзя; можно \texttt{p++}
+
+\texttt{int* const p = new int} // искомый константный указатель
+
+\subsection{Константная ссылка}
+
+Нельзя \texttt{int$\&$ const x = 1;} // это какая-то фигня. Не надо так :(
+
+Можно заводить ссылки на константные переменные, но не стоит делать константные ссылки (будет либо ошибка, либо не будет иметь смысла)
+
+\
+
+\begin{lstlisting}
+int x = 1;
+const int& y = x;
+\end{lstlisting}
+
+Выше мы можем менять x, но не через y. 
+
+\paragraph{Продление жизни ссылок}\texttt{const int$\&$ x = 5} // можно инициализировать \texttt{rvalue} 
+
+Такая ссылка не умрет, пока не закончиться локальная видимость переменной.\footnote{\text{https://habr.com/ru/post/186790/}} 
+
+\section{Приведение типов}
+
+\subsection{static\_cast}
+
+\begin{lstlisting}
+static_cast<type> (expression);
+\end{lstlisting}
+
+Если преобразование не однозначно, то будет CE (неоднозначный каст). 
+
+Будет CE, если нет подходящего преобразования. 
+
+Название static из-за того, что всё делается на уровне компиляции. 
+
+Не знаешь, какое приведение типов тебе нужно --- тебе нужен \texttt{static\_cast} 
+
+\subsection{Три запрещенных заклинания:}
+
+\paragraph{Первое заклинание:} \texttt{reinterpret\_cast<>(...)}
+
+Берёт объект как байты в памяти и начинает считать, что это другой тип. 
+
+\
+
+Можно \texttt{reinterpret\_cast} указателей:
+
+\texttt{reinterpret\_cast<type\&>(...);}
+
+\
+
+\texttt{reinterpret\_cast} ссылки:
+
+\texttt{type y = reinterpret\_cast<type\&>(x);}
+
+\paragraph{Второе заклинание:} \texttt{const\_cast<>(...)}
+
+Означает ``перестань считать константу константой'' (которое неявно запрещено) и наоборот. Вообще, это UB. 
+
+\textit{Пример:}
+
+\begin{lstlisting}
+int& z = const_cast<int&>(y);	
+\end{lstlisting}
+
+Теоретически, это нужно, когда есть две функции:
+
+\begin{lstlisting}
+f(int f)
+f(const int&)
+\end{lstlisting}
+
+Если по какой-то причине захотим запустить f() от инт'а по пути константы (если f для них работает совершенно по разному), то нужно будет привести \texttt{int} к \texttt{const int}. 
+
+\texttt{const\_cast} -- это угнетение компилятора.
+
+\paragraph{Третье заклинание} C-style cast
+
+Пытается сделать всё, чтобы получилось. Так что мы даже не узнаем, что сделалось
+
+\begin{lstlisting}
+(type)(expression)	
+\end{lstlisting}
+
+\section{Введение в ООП}
+
+\subsection{Что это такое?}
+
+Код состоит из объявления разных объектов некоторых типов и expressions с этими объектами.   
+
+\subsection{Три волшебных слова в ООП}
+
+Инкапсуляция, наследование, полиморфизм --- основные принципы, на которых основано ООП. Дальше мы подробнее изучим каждое слово, а также увидим связь одного с другим. В частности, по мере изучения нового слова могут быть сделаны уточнения и нововведения в предыдущую тему. 
+
+\section{Инкапсуляция}
+
+Точное определение инкапсуляции дать сложно. Ниже приведены два определения на не совсем формальном языке, дабы понять суть данного понятия. 
+
+\textbf{Инкапсуляция} - оборачивание в (защитную) оболочку внутренней реализации с помощью ограничивающего интерфейса. 
+
+\textbf{Инкапсуляция} - совместное хранение полей и методов (но ограниченный доступ к ним извне).  
+
+\subsection[Классы и структуры]{Объявление классов и структур} (авторы ленивые, поэтому описание некоторого базового синтаксиса может быть пропущено)
+
+\begin{lstlisting}
+class C {
+  /* тело класса */
+};
+
+struct S {
+  /* тело структуры */
+};
+\end{lstlisting}
+
+В теле --- методы, поля и т.д.
+
+\subsection{Модификаторы доступа}
+
+\begin{lstlisting}
+class C {
+ private: // может быть опущено
+ public: // дальше всё public, пока не встретится модификатор доступа
+ ...
+ protected:
+ ...
+};
+\end{lstlisting}
+ 
+Для структуры всё то же самое, только изначально всё публично, а не приватное. 
+
+\subsection{Оператор ``стрелочка''}
+
+\texttt{(*p).f();} $\equiv$ \texttt{p->f();}
+
+\subsection{Указатель this}
+
+\colorbox{red}{...}
+
+\subsection{Конструкторы}
+
+Конструктор нужен для инициализации объектов некоторого класса. 
+
+\begin{lstlisting}
+	C x = ... ;
+	// варианты инициализации
+	C x(...);
+	C x{...}; 
+	C x = C(...);
+	C x = {...}; // так еще можно делать в структуре без конструктора (если все поля паблик) -- агрегатная инициализация. 
+\end{lstlisting}
+
+
+Дальше в какой-то степени будем реализовывать класс строк
+
+\begin{lstlisting}
+  class String {
+   public:
+     
+    String() { // конструктор
+      str = new char[16]; // начальный размер
+      size = 0;
+    } 
+    
+    String(size_t n) {
+      ...
+    }
+     
+   private:
+    char* str;
+    size_t size;  	
+  };
+\end{lstlisting}
+
+Конструктор по умолчанию -- такое компилятор может сделать сам (он это делает, если мы этого не сделали), но он будет инициализировать по умолчанию все поля (и это в большинстве случаев плохо). 
+
+Первое правило -- компилятор сам создает конструктор, если мы его не определили и не определили никакой другой конструктор. Но можно явно попросить его сгенерировать такой. 
+
+\begin{lstlisting}
+	String() = default; // начиная с C++11
+\end{lstlisting}
+
+Конструкторы нужны в тех случаях, когда надо инициализировать не тривиально. 
+
+Можно поле создавать так (начиная с \cppEleven):
+
+\begin{lstlisting}
+	size_t size = 0; // это будет дефолтная инициализация. 
+\end{lstlisting}
+
+Можно сделать делигацию конструктора. Сначала выполнится один конструктор, потом другой. 
+
+\begin{lstlisting}
+	String(...) : String(...) {
+	  ... // дополнительный код
+	}
+\end{lstlisting}
+
+Если структура состоит только из 
+
+\subsection{Деструкторы}
+
+При запуске деструктора:
+
+\begin{enumerate}
+	\item Удаляем нетривиальные объекты (у которых выделена память оператором \textit{new});
+	\item Закрытие потоков;
+	\item Освобождение ресурсов; 
+\end{enumerate}
+
+
+\ps Всегда надо подчищать за собой!
+
+Деструктор \textbf{нельзя} сделать приватный. 
+
+Деструктор можно вызывать явно (но в крайних и очень редких случаях). 
+
+\begin{lstlisting}
+	~String() {
+	  delete[] str;
+	}
+\end{lstlisting}
+
+Все, что нужно делать в деструкторе -- нетривиальные действия. Все остальные поля уничтожаются сами после выхода из деструктора. 
+
+\subsection{Копирование, копирующее присваивание и правило трех}
+
+Для большинства объектов хочется уметь делать копии. 
+
+\begin{lstlisting}
+	S s;
+	S s1 = s; // если конструктора копирования нет, компилятор его автоматически создает, просто копируя все поля.  
+\end{lstlisting}
+
+Это плохо с нетривиальными полями (ссылки, указатели и т.д.) -- может быть RE. 
+
+\paragraph{Инициализация конструктора копирования} Важно делать \texttt{const String\& s}
+
+\begin{lstlisting}
+  String(const String& s) {
+    str = new char[s.size];
+    for (...) {
+       ...
+    }	
+  };
+\end{lstlisting}
+
+Аналогично обычным конструкторам можно написать \texttt{= default} 
+
+Чтобы запретить копирование:
+
+\begin{enumerate}
+	\item Сделать приватным
+	\item \texttt{String(const String\& s) = delete;} начиная с \cppEleven
+\end{enumerate}
+
+Если хотим заменить уже существующий объект на другой, то нужно удалить старый объект и положить туда новый. 
+
+Тривиальный оператор присваивания генерируется автоматически.
+
+Он должен возвращать результат присваивания (того же типа). Хотим возвращать \textit{lvalue}. Возвращаем неконстантную ссылку, чтобы можно было ей присваивать  
+
+\
+
+Если хотим написать 
+
+\begin{lstlisting}
+	String s;
+	String s1;
+	s1 = s;
+\end{lstlisting}
+
+то здесь будет вызываться оператор присваивания. 
+
+\begin{lstlisting}
+  String& operator =(const String& s) {
+    // стоит проверять на присваивание самому себе
+    if (this == &s) return *this;
+    delete[] str;
+    ...
+    return *this;
+  }
+\end{lstlisting}
+ 
+ Оператор присваивания тоже можно писать через \texttt{= default}
+ 
+ \paragraph{Rule of three}  Если в нашем классе потребовалось реализовать что-то одно из нетривиальных конструктора, деструктора или оператора присваивания, то потребуются и все три. 
+ 
+ \subsection{Константные методы}
+ 
+ Такие методы, что их можно выполнять над константными переменными. Надо писать слово \texttt{const}, когда метод ничего не меняет.
+ 
+\begin{lstlisting}
+ void f(...) const {
+   ...
+ }
+\end{lstlisting} 
+ 
+ Если мы хотим завести счетчик, сколько раз метод был вызван, а метод константный. В таком случае, если слово ``anticonst'' -- \texttt{mutable}
+ 
+ То есть счетчик будет реализован:
+ 
+\begin{lstlisting}
+  mutable int counter;
+\end{lstlisting}
+ 
+\begin{lstlisting}
+  char& operator [](size_t n);
+  const char& operator[](size_t n) const;
+\end{lstlisting}
+ 
+ \subsection{Списки инициализации в конструкторах}
+ 
+\begin{lstlisting}
+struct S {
+	int& x;
+	const int y;
+	
+	S(int& x, int y) { // когда вошли в эту область видимости, поля должны быть уже проинициализированы, а ссылку невозможно проиниализировать так
+	}
+	
+	// Вместо этого так:
+	
+	S(int& x, int y) : x(x), y(y) {} // здесь инициализация будет до входа в конструктор
+};
+\end{lstlisting}
+
+Списки инициализации сохраняют нам одно копирование.
+ 
+\subsection{Friends}
+
+Иногда захочется, чтобы приватное поле было доступно. 
+
+\begin{lstlisting}
+  friend void f(int);
+  friend class C;
+\end{lstlisting}
+ 
+ 
+\begin{lstlisting}
+  friend istream& operator >> (istream& in, S& x)
+\end{lstlisting}
+ 
+\subsection{Explicit}
+
+Если у нас большой код, то велика возможность что-то пропустить и получить неявное преобразование там, где его не должно быть. Для этого можно запретить неявную конвертацию. 
+
+\begin{lstlisting}
+	explicit String(size_t n); // можно вызывать только явно
+\end{lstlisting}
+
+
+
+Операторы преобразования тоже могут быть \textit{explicit} (c \cppEleven )
+\begin{lstlisting}
+	explicit operator int() { // оператор преобразования к инту
+	  ...
+	  return x; // x типа int 
+	}
+\end{lstlisting}
+
+\subsection{Contextual conversial}
+
+Это конверсия в буль в ифах, форах, вайлах (под условиях). Такая конверсия игнорирует explicit (потому что не является неявных преобразованием)
+
+\subsection{Статические поля и методы}
+Это те поля и методы, которые относятся не к конкретному объекту, а ко всему классу в целом. 
+
+\begin{itemize}
+	\item Память на них выделяется при компиляции (в статической области).
+	\item Из статических методов есть доступ только к статическим полям. 
+	\item Если статический метод публичный, то для вызова его извне класса надо писать: 
+\end{itemize} 
+
+\begin{lstlisting}
+	class C {
+ 	public:
+		static void method();
+	}
+
+	int main() {
+		C object;
+		object.method() // неправильно
+	
+		C::method() // правильно
+	}
+\end{lstlisting}
+ 
+
+\subsection[Pointers to members]{Pointers to members -- указатель на член класса}
+
+\begin{lstlisting}
+	int S::* p = &S::*x; // для поля
+	int(/*параметры*/) (S::*) ... // для метода 
+	
+	S s;
+	s.*p // вернет ссылку на x // здесь .* - отдельный оператор
+\end{lstlisting}
+
+Пример: есть ориентированный граф и мы можем делать обход либо по обычному, либо по инвертированным ребрам. Хотим написать (\underline{одну}) функцию, которая будет делать обход (как обычный, так и инвертированный). В зависимости от того, какой обход требуется, нужно завести указатель на начало и указатель на конец, а в обходе вызываем от указателя. 
+
+\section[Inheritance (наследование)]{Inheritance -- второй принцип ООП}
+Некоторые типы могут быть ``подтипами'' других. Производные типы содержат все поля и методы родителей, а также и некоторые свои. 
+
+\textbf{\textit{Синтаксис:}}
+\begin{lstlisting}
+class Derived : public /*private, protected*/ Base {
+	...
+}
+\end{lstlisting}
+
+\subsection{Модификатор PROTECTED}
+
+Будет доступен членам, друзьям, детям (наследникам)
+
+Стоит обращать внимание на тип, который используется (структура или класс)
+
+\subsection{Размещение в памяти объектов наследников}
+
+\begin{lstlisting}
+	struct Base {
+	  int a;
+	  
+	  Base(int a){}
+	  
+	};
+	
+	struct Derived : public Base{
+	  int a;
+	  int b;
+	};
+\end{lstlisting}
+
+sizeof(Derived) даст 3: a, a, b
+
+\
+
+\begin{lstlisting}
+	Derived d;
+	d.a; // поле Derived
+	d.Base::a; // поле Base
+\end{lstlisting}
+
+То есть при создании наследника \underline{всегда} создается родитель (со всеми полями и т.п.), а также сам класс, со всеми его полями. Также при удалении: сначала сам класс, потом родитель. 
+
+\begin{lstlisting}
+	Derived(int a, int b, int c) : Base(a), a(b), b(c) {
+		...
+	}
+\end{lstlisting}
+
+Циклическая объявление -- ошибка компиляции. 
+
+\ps Когда пишем деструктор -- не нужно удалять Base !!!
+
+\subsection{Поиск имён при наследовании}
+
+\begin{lstlisting}
+	struct Granny {
+		int x;
+		void f();
+	}
+	struct Mom : private Granny {
+		int d;
+		void f(int y);
+	}
+	struct Son : public Mom {
+		int e;
+		void f(double y)
+	}
+ 
+ 	Son s;
+	s.f(1); // Тут произойдёт неявный каст в double
+\end{lstlisting}
+
+Другие сигнатуры функций будут не видны (\textit{invisible}). Другие будут затменены сигнатурой из Son. 
+
+\begin{center}
+visible $\not=$ accessible
+\end{center}
+
+Видимые -- те, которые находит поиск имен. 
+Доступные -- те, к которым есть доступ по модификаторам доступа при наследовании. 
+
+А если сделать \texttt{private void f(double y)} внутри Son, то будет CE
+
+Решение: \textbf{Qualife id}
+
+\begin{lstlisting}
+	s.Mom::f(1);
+\end{lstlisting}
+
+\ps Поиск имён происходит всегда до проверки доступа!
+
+\begin{lstlisting}
+	s.f(); // Ошибка компиляции, т.к. такая функция invisible или т.к. она private
+	s.Mom::f() // то же самое
+	s.Granny::f() // CE, т.к. имя Granny inaccessible
+\end{lstlisting}
+
+\begin{lstlisting}
+	...
+	
+	class Son : public Mom {
+	public void f(double) {
+		Granny g; // не сработает
+	}
+	public void f(double) {
+		::Granny g; // сработает
+	} 
+}
+\end{lstlisting}
+
+Разрешим сыну общаться с бабушкой 
+
+\begin{lstlisting}
+	...
+
+	class Mom : private Granny{
+		friend class Son; // разрешаем сыну общаться с бабушкой
+	}
+	
+	...
+	s.Granny::f() // по-прежнему нельзя
+\end{lstlisting}
+ 
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
