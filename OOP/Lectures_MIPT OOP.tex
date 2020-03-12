@@ -942,6 +942,129 @@ visible $\not=$ accessible
 	s.Granny::f() // по-прежнему нельзя
 \end{lstlisting}
  
+%1
+
+\subsection{Multiple inheritance}
+
+\begin{center}
+	\underline{ЭТО ПЛОХО. УЖАС. НЕ НАДО ТАК.}
+\end{center} 
+
+Почему? Из-за \textbf{проблемы ромбовидного наследования (diamond problem)}. Рассмотрим геометрические фигуры. 
+
+Имеем систему (стрелка ведет от сына к родителю)
+
+\begin{center}
+	Square $\rightarrow$ Rectangle; Square $\rightarrow$ Rombus; Rectangle $\rightarrow$ Parallelogram; Rhombus $\rightarrow$ Parallelogram; 
+\end{center}
+
+Пусть в каждом лежит по инту. Тогда при создании квадрата создастся \underline{два} инта. 
+
+\textbf{\textit{Синтаксис:}}
+
+\begin{lstlisting}
+	class Square : public Rhombus, public Rectangle {};
+\end{lstlisting}
+
+При множественном наследование (если оно нам точно нужно), то нужно либо явно вызывать нужный метод (или обращаться к нужному полю), или следить, чтобы в предках не было  методов с одинаковыми сигнатурами. 
+
+Ещё \underline{плохой} пример:
+
+\begin{center}
+	Son$\rightarrow$Mom; Mom$\rightarrow$Granny; Son$\rightarrow$Granny
+\end{center}
+
+Можно получить \textbf{inaccessible base class}, если захотим обратиться к чему-то из Granny. Из-за структуры у сына будет две бабушки, поэтому не понятно к какому имени мы обращаемся (то есть к полям бабушки). 
+
+% 2
+
+% 3
+
+\subsection{Приведение типов при наследовании}
+
+\begin{center}
+	Derived \{int y, void f()\}$\rightarrow$Base \{int y, void f()\}
+\end{center}
+
+\begin{lstlisting}
+	class Base {
+		int x;
+	}
+	
+	class Derived : public Base {
+		int y;
+	}
+
+	Derived d;
+	Base* bp = &d;
+	Base& b = d;
+	b.f() // из Base
+	d.x++ // это изменит x и b, так как это разные имена одного и того же 
+	Derived* dp = &b; // CE, потому что Derived потомок Base; чтобы так писать нужен явный каст
+	Derived& dd = b; // CE аналогично предыдущему
+	
+	
+	Base bb = d; // \textbf{slicing}
+\end{lstlisting}
+
+\subsubsection{static\_cast}
+
+\begin{lstlisting}
+	Derived& dd = static_cast<Derived&> b; // явный down cast (наследование вниз) (вверх делать тоже можно)
+\end{lstlisting}
+
+\ps Такое преобразование очень опасно, так как компилятор не может проверить данный процесс. Если в не лежал Derived, то получим UB. 
+
+
+Статик каст позволяет перестраховаться от нарушения наследования и нарушения приватности и очень помогает при множественном наследовании. 
+
+\textbf{Пример:}
+
+\begin{center}
+	Son$\rightarrow$Mother; S$\rightarrow$Father; Mother$\rightarrow$Granny; Father$\rightarrow$Granny
+\end{center}
+
+\begin{lstlisting}
+	static_cast<Granny&>(s);
+\end{lstlisting}
+
+\subsubsection{reinterpret\_cast}
+
+Данный каст будет игнорировать приватность и все прочее. 
+
+% 4
+
+% 5
+
+\subsection{Виртуальные функции}
+
+Допустим, у нас есть координатная плоскость с двумя кругами: оба радиусом 1, в центре 1 и -1. Если мы опием квадраты вокруг этих кругов, то равны ли эти квадраты?
+
+Другой пример. $\sin^2{x}$ и $f^2(x)$ Первое мы скорее поймем как произведение синусов, а второе --- как композицию одинаковой функции. То есть для более узкого круга вещей (понятий) мы определяем одни и те же символы и формулы по разному. 
+
+Виртуальными функциями называются такие, у которых применяются более частные версии, даже если к объекту обратились как для общего вида. 
+
+\begin{lstlisting}
+	class Base {
+		void f();
+		virtual void g();	
+	};
+	
+	class Derived : public Base {
+		void f();
+		virtual void g();
+	};
+	
+	...
+	Derived d;
+	Base& b = d;
+	b.f(); // вызывается из Base
+	b.g(); // вызывается из Derived
+\end{lstlisting}
+
+\ps виртуальные функции замедляют компилятор и время выполнения, потому что компилятору надо понимать что в данном случае мы хотим сделать. 
+
+
 \end{document}
 
 
