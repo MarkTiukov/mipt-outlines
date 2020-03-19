@@ -1093,46 +1093,156 @@ Father f = reinterpret_cast<Son> // НЕправильный сдвиг
 	b.g(); // вызывается из Derived
 \end{lstlisting}
 
-\ps виртуальные функции замедляют компилятор и время выполнения, потому что компилятору надо понимать что в данном случае мы хотим сделать. 
+\ps виртуальные функции замедляют компилятор и время выполнения, потому что компилятору надо понимать что в данном случае мы хотим сделать. Он хранит указатель на таблицу виртуальных функций. За счет этого динамического подхода и теряется время. 
 
+\
 
-% 1
+Пусть
 
+\begin{lstlisting}
+	struct Base {
+	  int a;
+	  virtual void g();
+	  void f();
+	}
+\end{lstlisting}
 
+\texttt{sizeof(Base)} = 8 (без виртуальной функции -- 4)
 
-% 2
+\subsection{Override}
 
+\begin{lstlisting}
+	class Base {
+		virtual void f() const;
+	}
+	
+	class Derived: public Base {
+		void f();
+	}
+	
+	Base& b = d;
+	b.f(); // вызовется из \texttt{Base}, так как мы забыли ``const'' в \texttt{Derived}
+	
+\end{lstlisting}
 
+Функция в \texttt{Derived} не будет перегрузкой, а будет совершенно новой функцией. 
 
-% 3
+Чтобы постоянно не копировать сигнатуру, то надо писать:
 
+\begin{lstlisting}
+	class Derived : public Base {
+		void f() const override;
+	}
+\end{lstlisting}
 
+Тогда если мы забудем что-то скопировать из сигнатуры, то будет CE и мы сможет подправить, чтобы программа нормально работа. 
 
-% 4
+\subsubsection{Полиморфизм}
 
+Это принцип, согласно которому можно использовать одно то же название функции, но получить разный результат в зависимости от типа объекта, над которым выполняется функция. Бывает статическим и динамическим. 
 
+Вообще, статическое -- это то, что определяется на момент компиляции. Динамическое -- в процессе работы программы. 
 
-% 5
+Типы, у которых есть хоть одна виртуальная функция -- \textbf{полиморфный тип} (\textit{polymorphic type}).
 
+\subsection{dynamic\_cast} 
 
+Рассмотрим пример с сыном, мамой, папой и бабушкой. У бабушки есть виртуальная функция \texttt{f()}.
 
-% 6
+\begin{lstlisting}
+	Son s;
+	Mom& m = s;
+	// хотим сделать: Father\& f = m; НО это CE!!! потому что тип мамы с типом папы не совместимы. 
+	// тут на помощь приходит dinamic\_cast
+	Father &f = dynamic_cast<Father&>(m) // залезь в таблицу виртуальных функций и сделай что надо ;)
+\end{lstlisting}
 
+\ps Если у dynamic\_cast не может привести, то он падает в RE, в отличие от static\_cast (CE). Правда, если классы вообще не совместимы, то будет CE. То есть RE в случаях сложной, запутанной иерархии. Если кастуем указатели, то вернется \texttt{nullptr}. В то же время repreint\_cast просто будет считать часть сына от мамы за папу. 
 
+\subsection{Virtual destructor}
 
-% 7
+Когда мы привели объект какого-то типа к объекту типа его предка, то при удалении возникает проблема: при вызове деструктора вызывается деструктор старшего типа, то есть велика вероятность, что мы не все удалим. Сделав деструктор виртуальным, будет вызываться нужный деструктор. Также это самый простой способ сделать тип полиморфным. 
 
+\colorbox{red}{...}
 
+\subsection{Pure virtual functions and abstract classes}
 
-% 8
+Допустим мы пишем геометрию фигур и определяем класс shape -- общий для всех фигур. У каждого наследника должен быть метод area() -- посчитать площадь. У каждой отдельной фигуры данная функция понятна. А у shape? Нет. Её не понятно как определять. 
 
+\begin{lstlisting}
+	virtual double area() = 0; // \textbf{pure virtual function}
+\end{lstlisting}
 
+Хоть одна чисто виртуальная функция $\Rightarrow$ нельзя создавать объекты данного класса. (!Но можно его наследников!) 
 
-% 9
+\section[Templates (шаблоны)]{Templates --- шаблоны}
 
+Все понимают, что и для чего это такое: позволяет писать обобщенные функции (классы). 
 
+\subsection{Синтаксис}
 
-% 10
+\begin{lstlisting}
+	template<typename T> 
+	T max(const T& a, const T& b) {
+		return a > b ? a : b;
+	}
+\end{lstlisting}
+
+\begin{lstlisting}
+	template<typename T>
+	class vector {
+		...
+	};
+\end{lstlisting}
+
+\subsection{Typedef}
+
+\begin{lstlisting}
+	template<typename T>
+	using strmap = map<T, std::string>
+\end{lstlisting}
+
+\subsection{Перегрузка шаблонной функции}
+
+Если есть разные версии шаблонной функции, то работает перегрузка. 
+
+\begin{lstlisting}
+	template<typename U, typename V>
+	void f(U x, V y); // назовем это функция 1
+	
+	template<typename U>
+	void f(U x); // функция 2
+	
+	void f(int x, double y); // функция 3
+	
+\end{lstlisting}
+
+\begin{itemize}
+	\item Частное важнее общего;
+	\item Чем меньше шаблонов, тем лучше, но каст хуже. 
+\end{itemize}
+
+\begin{lstlisting}
+	f(1, 1); // вторая версия из-за первого пункта
+	f(1.0, 1); // первая из-за второго пункта (без первой и второй будет CE)
+\end{lstlisting}
+
+\begin{lstlisting}
+	// вместо третьей
+	template<...>
+	void f(T* x, T* y); // \colorbox{red}{...}
+\end{lstlisting}
+
+Если у нас только
+
+\begin{lstlisting}
+	template<typename T>
+	void f();
+	
+	f(); // CE
+\end{lstlisting}
+
+Можно делать шаблонный тип по умолчанию. 
 
 
 
