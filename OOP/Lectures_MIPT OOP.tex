@@ -1244,7 +1244,122 @@ Father f = reinterpret_cast<Son> // НЕправильный сдвиг
 
 Можно делать шаблонный тип по умолчанию. 
 
+\subsection{Специализация шаблонов}
 
+\begin{lstlisting}
+	template<typename T>
+	class Class {
+	
+	};
+
+
+	template<>
+	class Class <int> {
+		
+	};
+	
+	Class<char> c; // первого типа
+	Class<int> s // второго типа
+\end{lstlisting}
+
+\subsubsection{Частичная специализация}
+
+\begin{lstlisting}
+	template<typename T>
+	class Class<int*> {};
+\end{lstlisting}
+
+Все это компилятор делает на этапе компиляции, генерируя \underline{отдельные} функции
+Частична специализация возможна только при наличии общей!
+
+\subsubsection{Порядок специализаций}
+
+Важен порядок объявления специализаций (специализация подцепляется к ближайшей сверху общей)
+
+\begin{lstlisting}
+	template<typename T, typename U>
+	void f(T x, U y);
+	
+	template<typename T>
+	void f(T x, T y);
+	
+	template<>
+	void f(int x, double y);
+	
+	f(1, 0.1); //  вызовется первый вариант
+	
+	// если третий вариант поменять местами со вторым, то вызовется он (бывший третий) 	
+\end{lstlisting}
+
+\subsubsection{template template parameters --  шаблонный параметры}
+
+\begin{lstlisting}
+	template<typename T, template<typename> class Container>
+	struct Stack {
+		Container<T> cont;
+	}
+	
+	Stack<int, std::vector s>;
+\end{lstlisting}
+
+Шаблонным параметром могут только базовые типы. 
+
+\subsection{Метафункции}
+
+Допустим у нас есть функция от двух шаблонов
+
+\begin{lstlisting}
+	template<typename T, typename U>
+	void g() {
+	...
+	// хотим if (T == U)
+	}
+	
+	
+	// хотим 
+\end{lstlisting}
+
+Для этого:
+
+\begin{lstlisting}
+	template<typename T, typename U>
+	struct is_same {
+		static const bool value = false;
+	};
+	
+	typename<typename T>
+	struct is_same<T, T> { // специализация
+		static const bool value = true;
+	};
+	
+	template<typenmae T>
+	struct remove_const<const T> {
+		using type = T;
+		// typedef T type;
+	};
+	
+	
+	template<typename T, typename U>
+	void g() {
+	...
+	// хотим if (T == U)
+	if (is_same<T, U>::value){
+		...
+	}
+	
+	
+	
+\end{lstlisting}
+
+Все эти функции и другие есть в библиотеке \texttt{type\_traits}
+
+\subsection{Неоднозначность}
+
+Когда у компилятора есть неоднозначность: тип или объект, то по умолчанию он выбирает объект. Чтобы обратиться типу, то надо писать typename
+
+Чтобы убрать 
+
+\colorbox{red}{...}
 
 \end{document}
 
